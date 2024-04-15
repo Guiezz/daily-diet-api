@@ -3,20 +3,11 @@ from models.snack import Snack
 from database import db
 from datetime import datetime
 
-#- Deve ser possível editar uma refeição, podendo alterar todos os dados acima 🆗
-#- Deve ser possível apagar uma refeição    🆗
-#- Deve ser possível listar todas as refeições de um usuário
-#- Deve ser possível visualizar uma única refeição 🆗
-#- As informações devem ser salvas em um banco de dados 🆗
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 db.init_app(app)
-
-
- 
 
 @app.route('/snack', methods=['POST']) # Rota para criar uma refeição
 def create_snack():
@@ -83,7 +74,7 @@ def delete_snack(id):
     return jsonify({"message": "Refeição não encontrada"}), 404
 
 @app.route('/snack/<int:id>', methods=['GET'])  # Rota para visualizar uma refeição
-def check_snack(id):
+def get_snack(id):
     snack = Snack.query.get(id)   # Busca a refeição pelo id
 
     if snack:
@@ -91,12 +82,22 @@ def check_snack(id):
     
     return jsonify({"message": "Refeição não encontrada"}), 404
 
+@app.route('/snacks', methods=['GET'])  # Rota para listar todas as refeições
+def get_snacks():
+    snacks = Snack.query.all()  # Busca todas as refeições
+
+    if snacks:
+        snacks_list = []
+        for snack in snacks:
+            # Converte o objeto datetime para uma string no formato 'YYYY-MM-DD HH:MM:SS'
+            hours_str = snack.hours.strftime('%Y-%m-%d %H:%M:%S')
+            snacks_list.append({"name": snack.name, "description": snack.description, "hours": hours_str, "diet": snack.diet})
+        return jsonify(snacks_list), 200
+    
+    return jsonify({"message": "Nenhuma refeição encontrada"}), 404
 
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
 
 if __name__ == '__main__':
     app.run()
