@@ -3,10 +3,10 @@ from models.snack import Snack
 from database import db
 from datetime import datetime
 
-#- Deve ser possível editar uma refeição, podendo alterar todos os dados acima
-#- Deve ser possível apagar uma refeição
+#- Deve ser possível editar uma refeição, podendo alterar todos os dados acima 🆗
+#- Deve ser possível apagar uma refeição    🆗
 #- Deve ser possível listar todas as refeições de um usuário
-#- Deve ser possível visualizar uma única refeição
+#- Deve ser possível visualizar uma única refeição 🆗
 #- As informações devem ser salvas em um banco de dados 🆗
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ db.init_app(app)
 
  
 
-@app.route('/snack', methods=['POST'])
+@app.route('/snack', methods=['POST']) # Rota para criar uma refeição
 def create_snack():
     data = request.json
     name = data.get('name')
@@ -39,7 +39,7 @@ def create_snack():
     
     return jsonify({"message": "Dados inválidos"}), 400
 
-@app.route('/snack/<int:id>', methods=['PUT'])
+@app.route('/snack/<int:id>', methods=['PUT'])  # Rota para atualizar uma refeição
 def update_snack(id):
     data = request.json
     name = data.get('name')         # Recebe o nome da refeição
@@ -71,8 +71,25 @@ def update_snack(id):
 
     return jsonify({"message": "Nenhum dado fornecido para atualização"}), 400
 
+@app.route('/snack/<int:id>', methods=['DELETE'])  # Rota para deletar uma refeição
+def delete_snack(id):
+    snack = Snack.query.get(id)     # Busca a refeição pelo id
 
+    if snack:
+        db.session.delete(snack)    # Deleta a refeição
+        db.session.commit()
+        return jsonify({"message": "Refeição deletada com sucesso"}), 200
+    
+    return jsonify({"message": "Refeição não encontrada"}), 404
 
+@app.route('/snack/<int:id>', methods=['GET'])  # Rota para visualizar uma refeição
+def check_snack(id):
+    snack = Snack.query.get(id)   # Busca a refeição pelo id
+
+    if snack:
+        return jsonify({"name": snack.name, "description": snack.description, "hours": snack.hours, "diet": snack.diet}), 200
+    
+    return jsonify({"message": "Refeição não encontrada"}), 404
 
 
 
